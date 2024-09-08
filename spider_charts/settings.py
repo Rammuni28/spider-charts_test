@@ -80,14 +80,13 @@ WSGI_APPLICATION = 'spider_charts.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': config('DB_NAME'),
+        'NAME': config('DB_NAME'),  # New database name from the .env file
         'USER': config('DB_USER'),
-        'PASSWORD': config('DB_PASSWORD'),
+        'PASSWORD': config('DB_PASSWORD'),  # URL encoded password from the .env file
         'HOST': config('DB_HOST'),
         'PORT': config('DB_PORT', default='3306'),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
