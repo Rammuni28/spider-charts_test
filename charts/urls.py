@@ -4,7 +4,7 @@ from .views import (
     StCompanyOverviewDetail, 
     StFundingValuationList, 
     StFundingValuationDetail,
-    StOwnershipStructureList, StOwnershipStructureDetail, StParametricScoringList, StParametricScoringDetail
+    StOwnershipStructureList, StOwnershipStructureDetail, StParametricScoringList, StParametricScoringDetail,CombinedFormSubmission
 )
 
 urlpatterns = [
@@ -28,4 +28,6 @@ urlpatterns = [
     # Parametric Scoring
     path('parametric-scoring', StParametricScoringList.as_view(), name='parametric-scoring-list'),
     path('parametric-scoring/<int:st_parametric_scoring_id>/', StParametricScoringDetail.as_view(), name='parametric-scoring-detail'),
+
+    path('submit-all-forms', CombinedFormSubmission.as_view(), name='submit_all_forms'),
 ]

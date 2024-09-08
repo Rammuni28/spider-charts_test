@@ -440,3 +440,78 @@ class StParametricScoringDetail(APIView):
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
         finally:
             Session.remove()
+
+
+# Combined Form Submission (POST all forms data together)
+class CombinedFormSubmission(APIView):
+
+    def post(self, request, *args, **kwargs):
+        session = Session()
+        try:
+            data = request.data  # This will contain data for all forms
+
+            # Company Overview Form data
+            new_company = StCompanyOverview(
+                st_company_name=data['company_overview']['st_company_name'],
+                st_company_description=data['company_overview']['st_company_description'],
+                st_year_of_incorporation=data['company_overview']['st_year_of_incorporation'],
+                st_country=data['company_overview']['st_country'],
+                st_total_founders=data['company_overview']['st_total_founders'],
+                st_no_of_employees=data['company_overview']['st_no_of_employees'],
+                st_founder_names=data['company_overview']['st_founder_names'],
+                st_industry_type=data['company_overview']['st_industry_type'],
+                st_geography=data['company_overview']['st_geography'],
+                is_active=data['company_overview'].get('is_active', True)
+            )
+            session.add(new_company)
+            session.flush()  # Flush to get the company ID for other forms
+
+            # Funding Valuation Form data
+            new_funding = StFundingValuation(
+                st_company_id=new_company.st_company_id,  # Linking to company
+                st_stage=data['funding_valuation']['st_stage'],
+                st_raised_to_date=data['funding_valuation']['st_raised_to_date'],
+                st_last_valuation=data['funding_valuation']['st_last_valuation'],
+                st_current_valuation=data['funding_valuation']['st_current_valuation'],
+                st_capital_requirements=data['funding_valuation']['st_capital_requirements'],
+                is_active=data['funding_valuation'].get('is_active', True)
+            )
+            session.add(new_funding)
+
+            # Ownership Structure Form data (Multiple shareholders possible)
+            for shareholder in data['ownership_structure']:
+                new_ownership = StOwnershipStructure(
+                    st_company_id=new_company.st_company_id,
+                    st_type=shareholder['st_type'],
+                    st_shareholder_name=shareholder['st_shareholder_name'],
+                    st_holding_percentage=shareholder['st_holding_percentage'],
+                    is_active=shareholder.get('is_active', True)
+                )
+                session.add(new_ownership)
+
+            # Parametric Scoring Form data
+            new_scoring = StParametricScoring(
+                st_company_id=new_company.st_company_id,
+                st_market_potential=data['parametric_scoring']['st_market_potential'],
+                st_product_viability=data['parametric_scoring']['st_product_viability'],
+                st_financial_health=data['parametric_scoring']['st_financial_health'],
+                st_team_strength=data['parametric_scoring']['st_team_strength'],
+                st_competitive_advantage=data['parametric_scoring']['st_competitive_advantage'],
+                st_customer_traction=data['parametric_scoring']['st_customer_traction'],
+                st_risk_factors=data['parametric_scoring']['st_risk_factors'],
+                st_exit_potential=data['parametric_scoring']['st_exit_potential'],
+                st_innovation=data['parametric_scoring']['st_innovation'],
+                st_sustainability=data['parametric_scoring']['st_sustainability'],
+                is_active=data['parametric_scoring'].get('is_active', True)
+            )
+            session.add(new_scoring)
+
+            # Commit all changes
+            session.commit()
+            return Response({'message': 'Forms submitted successfully'}, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            session.rollback()  # Rollback in case of error
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        finally:
+            Session.remove()  # Properly clean up the session
