@@ -129,9 +129,13 @@ class StFundingValuationList(APIView):
                 st_company_id=data['st_company_id'],
                 st_stage=data['st_stage'],
                 st_raised_to_date=data['st_raised_to_date'],
+                st_raised_currency=data.get('st_raised_currency', 'USD'),
                 st_last_valuation=data['st_last_valuation'],
+                st_last_valuation_currency=data.get('st_last_valuation_currency', 'USD'),
                 st_current_valuation=data['st_current_valuation'],
+                st_current_valuation_currency=data.get('st_current_valuation_currency', 'USD'),
                 st_capital_requirements=data['st_capital_requirements'],
+                st_capital_requirements_currency=data.get('st_capital_requirements_currency', 'USD'), 
                 is_active=data.get('is_active', True)
             )
             session.add(new_funding)
@@ -471,9 +475,13 @@ class CombinedFormSubmission(APIView):
                 st_company_id=new_company.st_company_id,  # Linking to company
                 st_stage=data['funding_valuation']['st_stage'],
                 st_raised_to_date=data['funding_valuation']['st_raised_to_date'],
+                st_raised_currency=data['funding_valuation'].get('st_raised_currency', 'USD'),  # Currency
                 st_last_valuation=data['funding_valuation']['st_last_valuation'],
+                st_last_valuation_currency=data['funding_valuation'].get('st_last_valuation_currency', 'USD'),  # Currency
                 st_current_valuation=data['funding_valuation']['st_current_valuation'],
+                st_current_valuation_currency=data['funding_valuation'].get('st_current_valuation_currency', 'USD'),  # Currency
                 st_capital_requirements=data['funding_valuation']['st_capital_requirements'],
+                st_capital_requirements_currency=data['funding_valuation'].get('st_capital_requirements_currency', 'USD'),  # Currency
                 is_active=data['funding_valuation'].get('is_active', True)
             )
             session.add(new_funding)
