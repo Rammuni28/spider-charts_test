@@ -120,7 +120,6 @@ class StFundingValuationList(APIView):
         finally:
             Session.remove()  # Properly clean up the session
 
-    # POST - Create a new funding valuation record
     def post(self, request, *args, **kwargs):
         session = Session()
         try:
@@ -129,23 +128,24 @@ class StFundingValuationList(APIView):
                 st_company_id=data['st_company_id'],
                 st_stage=data['st_stage'],
                 st_raised_to_date=data['st_raised_to_date'],
-                st_raised_currency=data.get('st_raised_currency', 'USD'),
                 st_last_valuation=data['st_last_valuation'],
-                st_last_valuation_currency=data.get('st_last_valuation_currency', 'USD'),
                 st_current_valuation=data['st_current_valuation'],
-                st_current_valuation_currency=data.get('st_current_valuation_currency', 'USD'),
                 st_capital_requirements=data['st_capital_requirements'],
-                st_capital_requirements_currency=data.get('st_capital_requirements_currency', 'USD'), 
+                st_currency=data.get('st_currency', 'USD'),  # New single currency field
+                st_created_by=data.get('st_created_by', 1),  # Assuming default creator id
+                st_modified_by=data.get('st_modified_by', 1),  # Assuming default modifier id
                 is_active=data.get('is_active', True)
             )
             session.add(new_funding)
             session.commit()
-            return Response({'message': 'Funding and Valuation created successfully'}, status=status.HTTP_201_CREATED)
+            return Response({'message': 'Funding Valuation created successfully'}, status=status.HTTP_201_CREATED)
         except Exception as e:
             session.rollback()
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
         finally:
-            Session.remove()  # Properly clean up the session
+            session.close()  # Properly clean up the session
+
+
 
 # Funding Valuation Detail View (GET, PUT, DELETE)
 class StFundingValuationDetail(APIView):
@@ -474,15 +474,13 @@ class CombinedFormSubmission(APIView):
             new_funding = StFundingValuation(
                 st_company_id=new_company.st_company_id,  # Linking to company
                 st_stage=data['funding_valuation']['st_stage'],
-                st_raised_to_date=data['funding_valuation']['st_raised_to_date'],
-                st_raised_currency=data['funding_valuation'].get('st_raised_currency', 'USD'),  # Currency
-                st_last_valuation=data['funding_valuation']['st_last_valuation'],
-                st_last_valuation_currency=data['funding_valuation'].get('st_last_valuation_currency', 'USD'),  # Currency
-                st_current_valuation=data['funding_valuation']['st_current_valuation'],
-                st_current_valuation_currency=data['funding_valuation'].get('st_current_valuation_currency', 'USD'),  # Currency
-                st_capital_requirements=data['funding_valuation']['st_capital_requirements'],
-                st_capital_requirements_currency=data['funding_valuation'].get('st_capital_requirements_currency', 'USD'),  # Currency
+                st_raised_to_date=data['funding_valuation']['st_raised_to_date'],  # Now expecting string
+                st_last_valuation=data['funding_valuation']['st_last_valuation'],  # Now expecting string
+                st_current_valuation=data['funding_valuation']['st_current_valuation'],  # Now expecting string
+                st_capital_requirements=data['funding_valuation']['st_capital_requirements'],  # Now expecting string
+                st_currency=data['funding_valuation'].get('st_currency', 'USD'),  # Consolidated single currency field
                 is_active=data['funding_valuation'].get('is_active', True)
+
             )
             session.add(new_funding)
 

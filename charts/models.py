@@ -36,14 +36,11 @@ class StFundingValuation(Base):
     st_funding_id = Column(Integer, primary_key=True, autoincrement=True)
     st_company_id = Column(Integer, ForeignKey('st_company_overview.st_company_id'), nullable=False)
     st_stage = Column(String(255), nullable=False)
-    st_raised_to_date = Column(DECIMAL(15, 2), nullable=False)
-    st_raised_currency = Column(String(10), nullable=False, default= 'USD' )
-    st_last_valuation = Column(DECIMAL(15, 2), nullable=False)
-    st_last_valuation_currency = Column(String(10), nullable=False, default= 'USD' )
-    st_current_valuation = Column(DECIMAL(15, 2), nullable=False)
-    st_current_valuation_currency = Column(String(10), nullable=False, default= 'USD' )
-    st_capital_requirements = Column(DECIMAL(15, 2), nullable=False)
-    st_capital_requirements_currency =  Column(String(10), nullable=False, default= 'USD' )
+    st_raised_to_date = Column(String(255), nullable=False)  # Changed to String
+    st_last_valuation = Column(String(255), nullable=False)  # Changed to String
+    st_current_valuation = Column(String(255), nullable=False)  # Changed to String
+    st_capital_requirements = Column(String(255), nullable=False)  # Changed to String
+    st_currency = Column(String(10), nullable=False, default='USD')  # New single currency column
     st_created_by = Column(Integer, default=1)
     st_modified_by = Column(Integer, default=1)
     st_created_on = Column(DateTime, default=func.current_timestamp())
@@ -51,7 +48,6 @@ class StFundingValuation(Base):
     is_active = Column(Boolean, default=True)
     
     company = relationship("StCompanyOverview", back_populates="funding_valuation")
-
 class StOwnershipStructure(Base):
     __tablename__ = 'st_ownership_structure'
     
