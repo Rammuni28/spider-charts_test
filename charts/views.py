@@ -4,7 +4,7 @@ from rest_framework import status
 from .models import StCompanyOverview, StFundingValuation,StOwnershipStructure,StParametricScoring
 from django.forms.models import model_to_dict
 from .session import Session  # Import the scoped session
-
+from django.http import JsonResponse
 
 def sqlalchemy_obj_to_dict(obj):
     """Convert a SQLAlchemy object into a dictionary."""
@@ -446,7 +446,7 @@ class StParametricScoringDetail(APIView):
             Session.remove()
 
 
-# Combined Form Submission (POST all forms data together)
+# Combined Form Submission (POST and GET  all forms data together)
 class CombinedFormSubmission(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -515,9 +515,78 @@ class CombinedFormSubmission(APIView):
             # Commit all changes
             session.commit()
             return Response({'message': 'Forms submitted successfully'}, status=status.HTTP_201_CREATED)
+            
 
         except Exception as e:
             session.rollback()  # Rollback in case of error
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
         finally:
-            Session.remove()  # Properly clean up the session
+            # Session.remove()  # Properly clean up the session
+            session.close()
+
+
+
+
+    def get(self, request, *args, **kwargs):
+        session = Session()
+        try:
+            # Retrieve the most recently created company
+            latest_company = session.query(StCompanyOverview).order_by(StCompanyOverview.st_company_id.desc()).first()
+            if not latest_company:
+                return Response({'error': 'No companies found'}, status=status.HTTP_404_NOT_FOUND)
+
+            # Fetch all related details using the latest company ID
+            funding_valuation = session.query(StFundingValuation).filter_by(st_company_id=latest_company.st_company_id).all()
+            ownership_structure = session.query(StOwnershipStructure).filter_by(st_company_id=latest_company.st_company_id).all()
+            parametric_scoring = session.query(StParametricScoring).filter_by(st_company_id=latest_company.st_company_id).all()
+
+            # Prepare the response data
+            company_details = {
+                'company_overview': {
+                    'st_company_name': latest_company.st_company_name,
+                    'st_company_description': latest_company.st_company_description,
+                    'st_year_of_incorporation': latest_company.st_year_of_incorporation,
+                    'st_country': latest_company.st_country,
+                    'st_total_founders': latest_company.st_total_founders,
+                    'st_no_of_employees': latest_company.st_no_of_employees,
+                    'st_founder_names': latest_company.st_founder_names,
+                    'st_industry_type': latest_company.st_industry_type,
+                    'st_geography': latest_company.st_geography,
+                    'is_active': latest_company.is_active
+                },
+                'funding_valuation': [{
+                    'st_stage': item.st_stage,
+                    'st_raised_to_date': item.st_raised_to_date,
+                    'st_last_valuation': item.st_last_valuation,
+                    'st_current_valuation': item.st_current_valuation,
+                    'st_capital_requirements': item.st_capital_requirements,
+                    'st_currency': item.st_currency,
+                    'is_active': item.is_active
+                } for item in funding_valuation],
+                'ownership_structure': [{
+                    'st_type': item.st_type,
+                    'st_shareholder_name': item.st_shareholder_name,
+                    'st_holding_percentage': item.st_holding_percentage,
+                    'is_active': item.is_active
+                } for item in ownership_structure],
+                'parametric_scoring': [{ # Change here: Converted to list comprehension for each item
+                    'st_market_potential': item.st_market_potential,
+                    'st_product_viability': item.st_product_viability,
+                    'st_financial_health': item.st_financial_health,
+                    'st_team_strength': item.st_team_strength,
+                    'st_competitive_advantage': item.st_competitive_advantage,
+                    'st_customer_traction': item.st_customer_traction,
+                    'st_risk_factors': item.st_risk_factors,
+                    'st_exit_potential': item.st_exit_potential,
+                    'st_innovation': item.st_innovation,
+                    'st_sustainability': item.st_sustainability,
+                    'is_active': item.is_active
+                } for item in parametric_scoring] # Change here: Ensured each scoring item is processed
+            }
+
+            return Response(company_details, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        finally:
+            session.close()  # Properly close the session
