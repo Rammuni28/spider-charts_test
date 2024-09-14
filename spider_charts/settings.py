@@ -30,6 +30,13 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['3.111.53.242', 'localhost', '127.0.0.1','ai.ampvc.co', 'www.ai.ampvc.co']
 
+CORS_ALLOWED_ORIGINS = [
+    "https://ai.ampvc.co",  # Replace with your actual frontend domain
+    "http://localhost:3000",  # If you're testing from a local dev server
+    "http://localhost:3001",
+    "http://localhost:3006",
+]
+
 
 
 # Application definition
@@ -43,6 +50,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'charts',
     'rest_framework',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -53,6 +61,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
 
 ROOT_URLCONF = 'spider_charts.urls'
