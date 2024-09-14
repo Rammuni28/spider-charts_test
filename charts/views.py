@@ -542,6 +542,7 @@ class CombinedFormSubmission(APIView):
 
             # Prepare the response data
             company_details = {
+                'st_company_id': latest_company.st_company_id,  
                 'company_overview': {
                     'st_company_name': latest_company.st_company_name,
                     'st_company_description': latest_company.st_company_description,
