@@ -27,7 +27,7 @@ DEBUG = True
 
 # settings.py
 
-ALLOWED_HOSTS = ['13.126.26.6', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['52.66.255.17', 'localhost', '127.0.0.1']
 
 
 
