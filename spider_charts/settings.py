@@ -25,7 +25,10 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# settings.py
+
+ALLOWED_HOSTS = ['13.126.26.6', 'localhost', '127.0.0.1']
+
 
 
 # Application definition
